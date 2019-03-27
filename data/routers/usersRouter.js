@@ -30,7 +30,7 @@ router.post('/', async (req, res) => {
     } catch (error) {
       res.status(500).json({ error })
     }
-  else res.status(500).json({ error: 'Please provide a description and notes' })
+  else res.status(500).json({ error: 'Please provide a username and password' })
 })
 router.delete('/:id', async (req, res) => {
   const { id } = req.params
