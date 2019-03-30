@@ -2,7 +2,10 @@ const express = require('express')
 const helmet = require('helmet')
 const server = express()
 const session = require('express-session')
+const KnexSessionStore = require('connect-session-knex')(session)
+
 const UsersRouter = require('./data/routers/usersRouter')
+
 const PORT = 9090
 const sessionOptions = {
   name: 'shrimp',
@@ -13,7 +16,14 @@ const sessionOptions = {
   },
   httpOnly: true,
   resave: false,
-  saveUninitialized: false
+  saveUninitialized: false,
+  store: new KnexSessionStore({
+    knex: require('./dbConfig'),
+    tablename: 'sessions',
+    sidfieldname: 'sid',
+    createtable: true,
+    clearInterval: 1000 * 60 * 60 //hour
+  })
 }
 
 server.use(session(sessionOptions))
