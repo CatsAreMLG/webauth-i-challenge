@@ -37,13 +37,17 @@ router.post('/register', async (req, res) => {
     res.status(500).json({ error: 'Please provide a username and password' })
 })
 router.post('/login', async (req, res) => {
+  console.log(req.session)
   const { body } = req
   if (body && body.username && body.password) {
     const user = await Users.findUser(body)
     if (!user || !bcrypt.compareSync(body.password, user.password)) {
-      return res.status(401).json({ error: 'You shall not pass!' })
+      if (req.session && !req.session.user) {
+        return res.status(401).json({ error: 'You shall not pass!' })
+      }
     } else {
       try {
+        req.session.user = user
         const users = await Users.getUsers()
         res.status(200).json(users)
       } catch (error) {
