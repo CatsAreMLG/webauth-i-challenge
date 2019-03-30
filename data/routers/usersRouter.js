@@ -4,23 +4,37 @@ const router = express.Router()
 const bcrypt = require('bcryptjs')
 
 router.get('/', async (req, res) => {
-  try {
-    const users = await Users.getUsers()
-    res.status(200).json(users)
-  } catch (error) {
-    res.status(500).json({ error })
-  }
+  if (req.session && !req.session.user) {
+    return res.status(401).json({ error: 'You shall not pass!' })
+  } else
+    try {
+      const users = await Users.getUsers()
+      res.status(200).json(users)
+    } catch (error) {
+      res.status(500).json({ error })
+    }
+})
+router.get('/logout', (req, res) => {
+  if (req.session)
+    req.session.destroy(err => {
+      if (err) res.send('You can never leave')
+      else res.send('Bye bye')
+    })
+  else res.end()
 })
 router.get('/:id', async (req, res) => {
   const { id } = req.params
-  try {
-    const user = await Users.getUser(id)
-    user
-      ? res.status(200).json(user)
-      : res.status(404).json({ error: 'User not found' })
-  } catch (error) {
-    res.status(500).json({ error })
-  }
+  if (req.session && !req.session.user) {
+    return res.status(401).json({ error: 'You shall not pass!' })
+  } else
+    try {
+      const user = await Users.getUser(id)
+      user
+        ? res.status(200).json(user)
+        : res.status(404).json({ error: 'User not found' })
+    } catch (error) {
+      res.status(500).json({ error })
+    }
 })
 router.post('/register', async (req, res) => {
   const { body } = req
@@ -37,7 +51,6 @@ router.post('/register', async (req, res) => {
     res.status(500).json({ error: 'Please provide a username and password' })
 })
 router.post('/login', async (req, res) => {
-  console.log(req.session)
   const { body } = req
   if (body && body.username && body.password) {
     const user = await Users.findUser(body)
