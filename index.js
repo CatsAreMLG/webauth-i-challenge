@@ -16,7 +16,7 @@ const sessionOptions = {
   saveUninitialized: false
 }
 
-server.use(session)
+server.use(session(sessionOptions))
 server.use(helmet())
 server.use(express.json())
 server.use('/api/users', UsersRouter)
